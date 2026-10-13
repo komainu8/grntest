@@ -194,14 +194,16 @@ module Grntest
         end
       end
 
-      def execute_directive_file_exist(line, content, options)
+      def execute_directive_list_files(line, content, options)
         raw_path = options.first
         if raw_path.nil?
           log_input(line)
           log_error("#|e| [file-exist] path is missing")
         end
         path = Pathname(expand_variables(raw_path))
-        log_error("#|e| [file-exist] #{path.basename} is not found") unless(path.exist?)
+        path.parent.glob('**/*').each do |entry|
+          log_output("#{entry.basename}")
+        end
       end
 
       def timeout_value(key, line, input, default)
@@ -638,8 +640,8 @@ module Grntest
           execute_directive_include(line, content, options)
         when "copy-path"
           execute_directive_copy_path(line, content, options)
-        when "file-exist"
-          execute_directive_file_exist(line, content, options)
+        when "list-files"
+          execute_directive_list_files(line, content, options)
         when "timeout"
           execute_directive_timeout(line, content, options)
         when "read-timeout"
